@@ -1,0 +1,12 @@
+//= require polyfills
+//= require promise
+//= require skim
+//= require pieces.core
+//= require pieces
+//= require former
+//= require ./controllers/index
+//= require ./views/index
+//= require_tree ./components
+//= require_tree ./plugins
+//= require_tree ./hooks
+//= require_self

@@ -1,0 +1,6 @@
+li.item
+  .field.name title="#{@fullname}"
+    | #{@fullname}
+  .field.role
+    - if @role>1 
+      = I18n.t("meetings.presenter")

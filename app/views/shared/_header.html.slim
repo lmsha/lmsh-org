@@ -1,0 +1,20 @@
+style = Rails.application.assets['progressbar.css'].to_s
+header.header
+  .content
+    .header-top
+      = link_to '', '/', class: 'logo inline'
+      .description.inline
+        p.name АЛЬТЕРНАТИВА
+        p летняя
+        p многопрофильная
+        p школа
+      .user
+        .fullname
+          p.name = current_user.name
+          p.logout
+            = fa_icon 'sign-out'
+            = link_to 'Выйти', logout_path, class: 'dotted-link'
+        .avatar
+          = link_to avatar_tag(current_user), "/user/#{current_user.id}", class: 'static-link'
+    .nav-content
+      = semantic_navigation :primary, config: :navi

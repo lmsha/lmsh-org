@@ -1,0 +1,3 @@
+= javascript_include_tag params[:controller]
+= javascript_tag
+  | app.page = new pi.controllers.#{ params[:controller].camelize }();

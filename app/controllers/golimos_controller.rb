@@ -1,0 +1,2 @@
+class GolimosController < ApplicationController
+end

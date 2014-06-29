@@ -1,0 +1,5 @@
+.list-filter.pi data-component='list_filter' class="#{ klass }" data-event-selected="@@filter(@this.value)"
+  - options.each do |item|
+    span.item data-type=item[:filter] class="#{ item[:selected] ? 'is-selected' : nil} " 
+      span.dotted-link 
+        =item[:label] 

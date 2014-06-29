@@ -1,0 +1,11 @@
+= form_tag user_sessions_path, :method => 'post' do
+  .form
+    .field
+      = label_tag  :email, 'Email', class: 'field-label'
+      = text_input :email, 'Email', 'email-field'
+    .field
+      = label_tag  :password, 'Password', class: 'field-label'
+      = pass_input :password, 'Password', 'pass-field'
+    .field
+        = check_box :remember_me, 0, 'Remember me', class: 'is-remember-field'
+    .actions = submit_tag 'Log in', class: 'button button-enter'

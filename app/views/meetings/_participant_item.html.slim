@@ -1,0 +1,7 @@
+li.item
+  .field.name title="#{item.fullname}"
+    | #{item.fullname}
+  .field.email title="#{item.email}"
+    | #{item.email}
+  .field.role
+    | #{item.role.presenter? ? item.role_name : ''}

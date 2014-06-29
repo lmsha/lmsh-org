@@ -1,0 +1,7 @@
+doctype html
+html lang="ru"
+  == render 'layouts/dochead'
+  body.pi@body 
+    = yield
+    == render 'shared/footer'
+    = yield :scripts

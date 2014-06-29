@@ -1,0 +1,19 @@
+doctype html
+html lang="ru"
+  == render 'layouts/dochead'
+  body.pi@body 
+    .main-progress.progressbar-line
+    == render 'shared/header'
+    .main-wrap  
+      .main
+        = yield
+    == render 'shared/overlays'
+    .popups-container.is-hidden
+      = yield :popup
+    == render 'shared/footer'
+  style
+    | .main-progress{width:30%;}
+  == render 'shared/controller_scripts'
+  = yield :scripts
+  style
+    | .main-progress{width:50%;}

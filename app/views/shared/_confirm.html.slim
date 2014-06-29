@@ -1,0 +1,6 @@
+== content_for :popup
+  .confirm-modal.popup.is-hidden.pi@confirm_modal data-component="confirm_modal" data-event-hidden="@this.clear()"
+    .title =t('confirmation')
+    .message
+    = link_to t('helpers.cancel'), "@confirm_modal.cancel()", class: 'button inline button-cancel'
+    = link_to t('helpers.confirm'), "@confirm_modal.confirm()", class: 'button inline button-save'

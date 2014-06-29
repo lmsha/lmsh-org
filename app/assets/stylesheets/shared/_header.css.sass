@@ -1,0 +1,77 @@
+$avatar-size: 64px
+
+.header
+  z-index: $header-z
+  width: 100%
+  user-select: none
+  background: $white
+  .header-top
+    @extend %centered
+    height: $header-height
+    position: relative
+    .logo
+      +hidpi-image("logo.png")
+      margin-top: 10px 
+      margin-right: 20px
+    .description
+      padding-top: 16px
+      vertical-align: top
+      +font($font-size-small,$black)
+      .name
+        +font($font-size-head,$black)
+    .user
+      display: inline-block
+      position: absolute
+      right: 0
+      .fullname
+        display: inline-block
+        padding-top: 8px
+        margin-right: 10px
+        vertical-align: middle
+        .name
+          line-height: 18px
+          text-align: right
+          color: $blue-link
+      .avatar     
+        vertical-align: middle
+        margin-top: 10px
+        overflow: hidden
+        position: relative
+        display: inline-block
+        width: $avatar-size
+        height: $avatar-size
+        border-radius: 2px
+        margin-right: 10px
+        cursor: pointer
+        .avatar-img
+          width: $avatar-size
+          heght: $avatar-size
+        .avatar-letter
+          font-size: $font-size-head
+          line-height: $avatar-size
+          text-align: center
+          color: $white
+          background: darken($blue-link,10%)
+  .nav-content
+    background: $black  
+    height: $nav-height
+    nav
+      @extend %centered
+      .menu-link
+        +font($font-size-menu,$white)
+        width: auto
+        line-height: ($nav-height - 2)
+        padding: 0 20px
+        display: inline-block
+        text-decoration: none
+        transition: all 200ms
+        border-bottom: 2px solid $black
+        &:hover
+          border-color: darken($white,30%)
+          color: #ffffff
+          transition: none
+        &:active
+          border-color: $blue-link
+        &.is-active
+          border-color: $blue-link
+          pointer-events: none         

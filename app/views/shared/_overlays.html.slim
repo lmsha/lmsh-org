@@ -1,0 +1,11 @@
+.overlay.light.pi.is-hidden@light_overlay [
+  data-event-shown="@body.addClass('is-overlayed-light')" 
+  data-event-hidden="@body.removeClass('is-overlayed-light')"
+  data-event-click="@@cancel()"
+]
+.overlay.dark.pi.is-hidden@dark_overlay [
+  data-event-shown="@body.addClass('is-overlayed-dark')" 
+  data-event-hidden="@body.removeClass('is-overlayed-dark')"
+  data-event-click="@popup.handle_close()"
+]
+.overlay-dark-container.is-hidden.pi@popup data-component="popup" data-event-shown="@dark_overlay.show" data-event-hidden="@dark_overlay.hide"

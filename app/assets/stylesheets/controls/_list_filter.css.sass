@@ -1,0 +1,21 @@
+.list-filter
+  user-select: none
+  transition: opacity 200ms
+  transition-delay: 0.5s
+  opacity: 1
+  .item
+    padding: 0 10px
+    border-right: 1px solid $grey-bg
+    display: inline-block
+    line-height: 22px
+    &:last-child
+      border-width: 0
+    &.is-selected
+      border-color: $white
+      background: $grey-bg 
+      .dotted-link
+        border: none
+        color: $black
+  &.after-load
+    opacity: 0
+    display: block !important

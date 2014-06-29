@@ -1,0 +1,10 @@
+.leftbar.pi.is-hidden@leftbar [
+      data-event-shown="@light_overlay.show()"
+      data-event-hidden="@light_overlay.hide()"
+    ]
+  = form_tag nil, remote: true, class: 'pi', data: {:pi => 'leftbar_form', :component => 'form'} 
+    .leftbar-header
+      = yield :leftbar_header
+    .hr
+    .leftbar-content
+      = yield :leftbar_content

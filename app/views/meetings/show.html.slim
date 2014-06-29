@@ -1,0 +1,11 @@
+content_for :scripts
+ = javascript_include_tag "swfobject"
+
+.fullscreen.pi [
+    data-component="swf_player"
+    data-option-url = asset_url("meeting_app.swf")
+    data-option-meeting-id="#{@meeting.external_id}"
+    data-option-auth-hash="#{@token}"
+    data-option-conf="#{ErlyMeetings.config.config_path}" 
+    data-option-debug="console"
+    ]

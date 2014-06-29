@@ -1,0 +1,13 @@
+li.item
+  input type="hidden" name="participants[][id]" value="#{@id}"
+  input type="hidden" name="participants[][changed]" value="#{@changed}"
+  .field.name title="#{@fullname}"
+    | #{@fullname}
+  .field.email title="#{@email}"
+    | #{@email}
+  .field.role
+    - if @role>1 
+      = I18n.t("meetings.presenter")
+      input type="hidden" name="participants[][role]" value="#{@role}"
+    - else
+      input type="hidden" name="participants[][role]" value="1"

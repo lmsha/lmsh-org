@@ -1,0 +1,6 @@
+li.item
+  .field.datetime #{@start_time}
+  .field.title 
+    a.link href="@@show(#{ @id })" title="#{@name}"
+      | #{@name}
+  .field.duration #{@duration}

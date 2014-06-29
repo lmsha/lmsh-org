@@ -1,0 +1,48 @@
+== content_for :leftbar_header 
+  h1.leftbar-title =t('meetings.edition')
+  .form
+    = hidden_field_tag 'meeting[id]'
+    .field
+      = label_tag  'meeting[name]', t('title'), class: 'field-label'
+      = text_input 'meeting[name]', t('meetings.new'), 'name-field'
+    .datetime.inline
+      .field.date
+        = label_tag 'meeting[started_at]', t('date.title'), class: 'field-label'
+        = date_select 'meeting', 'started_at'
+      .field.time
+        = label_tag 'meeting[started_at]', t('time.title'), class: 'field-label'
+        = time_select 'meeting', 'started_at'
+    .divider
+    .field.private.inline
+        = check_box 'meeting[is_private]', 0, t('meetings.private'), class: 'is-private-field'
+    .actions.inline
+      = link_to t('helpers.cancel'), "@@cancel()", class: 'button inline button-cancel' 
+      = link_to t('helpers.save'), "@@save(@leftbar_form.value())", class: 'button inline button-save'
+== content_for :leftbar_content
+  .content-header
+    .content-actions
+      h1.title.inline =t('participants')
+      == render 'shared/select_all', {list: '@participants_list', klass: 'inline'}
+      = link_to t('meetings.add_participants'), "@@add_users", class: 'button inline button-cancel'
+    .list-header
+      = search_field 'q', t('meetings.search_users'), class: 'pi', data: {'event-query' => '@@search(@this.value)', 'component' => 'search_input', 'pi' => 'edit_search'}
+      .actions
+        .buttons.is-hidden.pi@edit_action_group
+          .icon-button.pi data-component="button" data-event-click="@popup.open(@select_roles)"
+            =fa_icon 'pencil'
+          .icon-button.pi data-component="button" data-event-click="@@destroy(@participants_list.selected)"
+            =fa_icon 'trash-o'
+      .progress-wrapper
+        .pi.progressbar-line.is-hidden@edit_loader data-component="load_progress"
+  .pi.list-container.users-list@participants_list [
+            data-component="list" 
+            data-plugins="searchable selectable drag_select jst_renderer redrawable" 
+            data-option-select="check" 
+            data-option-renderer="templates/meetings/participant_item"
+            data-event-selected="@edit_action_group.show"
+            data-event-selection-cleared="@edit_action_group.hide"
+            ]
+    ul.list
+
+== content_for :popup
+  == render 'meetings/edit_role_popup', options: [{:value => 1, :label => t('meetings.listener')},{:value => 2, :label => t('meetings.presenter')}]
