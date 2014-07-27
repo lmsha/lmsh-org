@@ -28,11 +28,8 @@ Navigasmic.setup do |config|
   config.semantic_navigation :primary do |n|
 
     n.item 'Голимчики', controller: 'golimos'
-    n.item 'Взрослые', controller: 'teachers'
-    n.item 'Курсы', controller: 'courses'
-    n.item 'Клубы и игрушки', controller: 'events'
+    n.item 'Dashboard', controller: 'dashboard'
     n.item 'Пользователи', controller: 'users', hidden_unless: proc{ current_role.manager? }
-    n.item 'Финансы', controller: 'finance', hidden_unless: proc{ current_role.manager? }
 
     # Groups and Items:
     #

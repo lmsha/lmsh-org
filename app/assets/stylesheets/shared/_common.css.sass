@@ -82,12 +82,11 @@ a
   padding: 0 10px 
   position: relative
   background: $white
-
   .sidebar
     .title
       @extend %h1_title  
     .button
-      @extend %button-red
+      @extend %button-grey
       +button-rounded
       width: 100%
       margin: 0 0 25px 0
@@ -105,8 +104,12 @@ a
     width: $content-width
     float: right
     position: relative
+    &.full-width
+      width: $main-width
+      .content-header
+        width: $main-width
     .list-container
-      width: $content-width
+      width: 100%
   .content-header
     padding-top: $main-pad-top 
     width: $content-width

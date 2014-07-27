@@ -1,4 +1,0 @@
-=I18n.t('meetings.confirm.destroy')
-span.name
-  = " #{@name}"
-|?

@@ -5,10 +5,10 @@
 .content.users-content
   .content-header
     .controls
-      = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@users_list.search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
+      = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
     .list-header
       .headings
-        = sort_button :span, 'ФИО', class:'heading field name is-sort-desc', data: {'option-field' => 'name', 'option-list' => '@users_list', 'event-click' => '@users_list.sort(@this.toggle)'}
+        = sort_button :span, 'ФИО', class:'heading field name is-sort-desc', data: {'option-field' => 'name', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
       .actions
         .buttons.is-hidden.pi@action_group
           .icon-button.pi data-component="button" data-event-click="@@edit(@users_list.selected_item)"
@@ -35,4 +35,5 @@
           .field.role class="#{user.role_id}"
             | #{user.role_name}
 
+== render 'new'
 == render 'shared/confirm'

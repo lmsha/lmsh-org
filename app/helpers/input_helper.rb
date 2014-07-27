@@ -17,6 +17,13 @@ module InputHelper
     end
   end
 
+  def email_input(name = nil, placeholder ='', klass ='', options = {})
+    merge_class! options, 'text-input-wrap '+ klass
+    content_tag(:div, nil, options) do
+      concat email_field_tag(name, nil,  class: 'text-input '+(klass.blank? ? '' : klass+'-input'), placeholder: placeholder)
+    end
+  end
+
   def pass_input(name = nil, placeholder ='', klass ='', options = {})
     merge_class! options, 'text-input-wrap '+ klass
     content_tag(:div, nil, options) do

@@ -1,5 +1,0 @@
-li.item
-  .field.name title="#{@fullname}"
-    | #{@fullname}
-  .field.email title="#{@email}"
-    | #{@email}

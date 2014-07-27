@@ -26,6 +26,14 @@ class EnumValue
     @enums
    end
 
+   def self.keys
+    @enums.keys
+   end
+
+   def self.values
+    @enums.values
+   end
+
    def method_missing(name, *args, &block)
       if name =~ /^(.*?)((\?|!)?)$/
         if self.class.enums.key?($1.to_sym)

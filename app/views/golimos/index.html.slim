@@ -1,0 +1,38 @@
+.content.users-content.full-width
+  .content-header
+    .controls
+      = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
+    .list-header
+      .headings
+        = sort_button :span, 'ФИО', class:'heading field name is-sort-desc', data: {'option-field' => 'last_name', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
+        = sort_button :span, 'класс', class:'heading field form', data: {'option-field' => 'form', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
+        = sort_button :span, 'отряд', class:'heading field team', data: {'option-field' => 'team', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
+        = sort_button :span, 'остаток', class:'heading field team', data: {'option-field' => 'money', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
+      .actions
+        .buttons.is-hidden.pi@action_group
+          button.button-save
+            | выдать задачу
+          button.button-enter
+            | принять задачу
+      .progress-wrapper
+        .pi.progressbar-line.is-hidden@loader data-component="load_progress"
+  .pi.list-container@users_list [
+            data-component="list" 
+            data-plugins="searchable selectable sortable"
+            data-option-select="radio check" 
+            data-option-scroll-object="window"
+            data-event-selected="@action_group.show"
+            data-event-selection-cleared="@action_group.hide"
+            ]
+    ul.list
+      - for user in @users
+        li.item data-id="#{user.id}" data-name="#{user.name}" data-last-name="#{user.last_name}" data-team="#{user.team}" data-form="#{user.form}"
+          .field.name title="#{user.fullname}"
+            | #{user.fullname}
+          .field.form title="#{user.form}"
+            | #{user.form} 
+          .field.team title="#{user.team}"
+            | #{user.team} 
+          .field.team title="#{user.money}"
+            | #{user.money} 
+            

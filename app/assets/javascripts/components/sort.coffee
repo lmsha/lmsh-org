@@ -20,7 +20,7 @@ do (context = this) ->
 
     _attach_list: (@list) ->      
       @list.on 'sort_update', (event) =>
-        if event.data.fields.sort_by != @options.field 
+        if event.data.fields != @options.field 
           @toggle()
           @toggle() if event.data.reverse
 

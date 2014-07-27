@@ -20,6 +20,7 @@ git 'git://github.com/palkan/navigasmic.git', :branch => "feature-item-generator
 end
 
 gem 'draper', '~> 1.3'
+gem "active_model_serializers", git: 'https://github.com/SamSaffron/active_model_serializers.git'
 
 #https://github.com/elabs/pundit
 gem "pundit"

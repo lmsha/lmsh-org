@@ -352,7 +352,7 @@ var __hasProp = {}.hasOwnProperty,
     }
 
     TextInput.prototype.initialize = function() {
-      this.input = this.node.nodeName.toLowerCase() === 'input' ? this : this.find('input');
+      this.input = this.node.nodeName === 'INPUT' ? this : this.find('input');
       this.editable = true;
       if (this.options.readonly || this.hasClass('is-readonly')) {
         this.make_readonly();
@@ -782,7 +782,7 @@ var __hasProp = {}.hasOwnProperty,
     }
 
     TextArea.prototype.initialize = function() {
-      this.input = this.node.nodeName.toLowerCase() === 'textarea' ? this : this.find('textarea');
+      this.input = this.node.nodeName === 'TEXTAREA' ? this : this.find('textarea');
       this.editable = true;
       if (this.options.readonly || this.hasClass('is-readonly')) {
         this.make_readonly();

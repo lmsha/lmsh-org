@@ -1,13 +1,15 @@
 Rails.application.routes.draw do
-  get 'finance/index'
+  resources :tasks
 
-  resources :teachers
+  resources :assignments
 
-  resources :events
-
-  resources :courses
-
-  resources :golimos
+  resources :golimos do
+    member do
+      post :buy_task
+      post :submit_task
+      post :decline_task
+    end
+  end
 
   get 'user_sessions/new', as: :login
 
@@ -18,5 +20,7 @@ Rails.application.routes.draw do
   resources :users
 
   root 'users#index'
+
+  get 'dashboard' => 'dashboard#index'
 
 end

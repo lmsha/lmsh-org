@@ -8,7 +8,7 @@ do (context = this) ->
 
   class pi.views.UsersView extends pi.views.CommonListView
     constructor: ->
-      super [{list:'users_list'}, 'loader', 'show_user_popup', 'show_user_form', {confirm:'confirm_modal'}]
+      super [{list:'users_list'}, 'loader', 'show_user_popup', 'new_user_popup', 'show_user_form', {confirm:'confirm_modal'}]
 
     render_list_data: (data) ->
       @list.add_item(user,false) for user in data.users 
@@ -18,3 +18,6 @@ do (context = this) ->
       @popup.open(@show_user_popup, align: false)
       @show_user_form.data(data)
       @show_user_list.data_provider data.participants
+
+    "new": ->
+      @popup.open(@new_user_popup) 

@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
 
   has_attached_file :avatar, :styles => { :medium => "300x300#", :thumb => "128x128#" }
   validates_attachment_content_type :avatar, :content_type => /\Aimage\/.*\Z/
+  
+  scope :normal, -> { where.not(role_id: 4)}
 
   def role
    if @role.nil? 

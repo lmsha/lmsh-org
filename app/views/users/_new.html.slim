@@ -1,0 +1,11 @@
+== content_for :popup
+  .new-user-popup.popup.is-hidden.pi@new_user_popup data-event-hidden="@new_user_form.clear()"
+    .title Пригласить пользователя
+    .form.pi@new_user_form data-component="form"
+      .field
+        = label_tag 'email', 'E-mail', class: 'field-label'
+        = email_input 'email', 'E-mail', 'email', class: 'pi', data: {:component => 'text_input'} 
+
+      = link_to 'Отмена', "@popup.close()", class: 'button inline button-cancel'
+      = link_to 'Пригласить', "@@invite_user(@new_user_form.value())", class: 'button inline button-save'
+      

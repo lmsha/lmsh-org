@@ -20,6 +20,13 @@ GIT
   specs:
     navigasmic (1.1.0)
 
+GIT
+  remote: https://github.com/SamSaffron/active_model_serializers.git
+  revision: 597a2e31481ac8c69b402d90c635776300059f3a
+  specs:
+    active_model_serializers (0.8.0)
+      activemodel (>= 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -274,6 +281,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_model_serializers!
   autoprefixer-rails
   capistrano
   capistrano-bundler
