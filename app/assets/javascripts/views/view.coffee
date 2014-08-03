@@ -10,7 +10,7 @@ do (context = this) ->
     constructor: (@components, @global_comps) ->
       @components ||= []
       @global_comps ||= []
-      @global_comps.push 'dark_overlay', 'light_overlay', 'popup'
+      @global_comps.push 'dark_overlay', 'light_overlay', 'popup', 'status_success', 'status_error'
       @initialize()
 
     initialize: ->
@@ -45,8 +45,12 @@ do (context = this) ->
     loading: (value) ->
       utils.debug "loading is #{ value }"
 
+    success: (message) ->
+      @status_success.show message
+
     error: (message) ->
       utils.error "Error: #{message}"
+      @status_error.show message
 
   for method in ['index', 'show', 'edit', 'update', 'create', 'new', 'destroy']
     do (method) ->

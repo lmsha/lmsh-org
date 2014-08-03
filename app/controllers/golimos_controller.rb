@@ -1,10 +1,10 @@
 class GolimosController < ApplicationController
 
-  before_action :set_user, only: [:buy_task, :submit_task, :decline_task]
+  before_action :set_user, only: [:buy_task, :submit_task, :decline_task, :current_task]
   before_action :set_task, only: [:submit_task, :decline_task]
 
   def index
-    @users = Golimo.all.order(last_name: :desc).decorate
+    @users = Golimo.all.includes(:tasks).order(last_name: :desc).decorate
     respond_to do |format|
      format.html
      format.json { render json: @users }
@@ -15,7 +15,7 @@ class GolimosController < ApplicationController
     if @user.assignments.incomplete.count(:all) > 0
       render status: :forbidden, text: "нельзя брать два задания" and return
     end
-    @task = Task.find_for_team(@user.team, assign_params[:category_id], assign_params[:form], assign_params[:simple])
+    @task = Task.find_for_team(@user.team, assign_params[:category_id].to_i, @user.form, assign_params[:simple].to_i)
     if @task.nil?
       render status: :forbidden, text: "нет подходящих заданий" and return
     else
@@ -30,6 +30,15 @@ class GolimosController < ApplicationController
       else
         render status: :forbidden, text: "недостаточно средств" and return
       end
+    end
+  end
+
+  def current_task
+    assignment = @user.assignments.incomplete.first
+    if assignment.nil?
+      render status: :not_found, text: "у голимчика нет заданий" and return
+    else
+      render json: assignment.task.decorate
     end
   end
 
@@ -51,7 +60,7 @@ class GolimosController < ApplicationController
 
   private
     def assign_params
-      params.permit(:category_id, :simple, :form)
+      params.permit(:category_id, :simple)
     end
 
     def set_task

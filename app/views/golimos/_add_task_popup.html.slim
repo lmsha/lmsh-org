@@ -1,0 +1,40 @@
+== content_for :popup
+  .add-task.popup.is-hidden.pi@add_task_popup data-event-hidden="@add_task_form.clear(); @add_task_btn.enable(); @add_task_message.empty()"
+    .title Выдать задачу
+    .form.pi@add_task_form data-component="form" data-event-form_clear="@select_category.update_text(); @select_simple.update_text()"
+      = hidden_field_tag 'id' 
+      .field
+        = label_tag 'fullname', 'Имя', class: 'field-label'
+        = text_input_wrap({class: 'pi is-readonly is-transparent'}) do
+          = text_field_tag 'fullname', nil, class: 'text-input'
+        end
+      .field
+        = label_tag 'category_id', 'Предмет', class: 'field-label'
+        = select_wrap({"data-pi"=>"select_category"}) do
+          select.select-input name="category_id"
+            option value="" 
+              |не выбрано
+            option value="1" 
+              |математика
+            option value="2" 
+              |физика
+            option value="3" 
+              |биология
+            option value="4" 
+              |химия
+            option value="5" 
+              |гум
+        end
+      .field
+        = label_tag 'simple', 'Сложность', class: 'field-label'
+        = select_wrap({"data-pi"=>"select_simple"}) do
+          select.select-input name="simple"
+            option value="" 
+              |не выбрано
+            option value="1" 
+              |простая
+            option value="0" 
+              |сложная
+        end
+    .message-content.pi@add_task_message
+    = link_to 'Выдать', '@@create_task(@add_task_form.value); @this.disable()', class: 'pi button inline button-save', data: {pi: 'add_task_btn'}

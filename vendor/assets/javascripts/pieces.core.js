@@ -153,33 +153,6 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       }
       return arr.sort(curry(_key_compare, [key, reverse], null, true));
     },
-    object_matcher: function(obj) {
-      var key, val;
-      for (key in obj) {
-        val = obj[key];
-        if (typeof val === "string") {
-          obj[key] = function(value) {
-            return !!value.match(new RegExp(val, 'i'));
-          };
-        } else if (val instanceof Object) {
-          obj[key] = object_matcher(val);
-        } else {
-          obj[key] = function(value) {
-            return val === value;
-          };
-        }
-      }
-      return function(item) {
-        var matcher;
-        for (key in obj) {
-          matcher = obj[key];
-          if (!((item[key] != null) && matcher(item[key]))) {
-            return false;
-          }
-        }
-        return true;
-      };
-    },
     debounce: function(period, fun, ths) {
       var _buf, _wait;
       if (ths == null) {
@@ -263,7 +236,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 })(this);
 ;(function(context) {
   "use strict";
-  var pi, utils, _true;
+  var pi, utils, _true, _types;
   pi = context.pi = context.pi || {};
   utils = pi.utils;
   pi.Event = (function() {
@@ -326,22 +299,45 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     return EventListener;
 
   })();
+  _types = function(types) {
+    if (typeof types === 'string') {
+      return types.split(',');
+    } else if (Array.isArray(types)) {
+      return types;
+    } else {
+      return [null];
+    }
+  };
   return pi.EventDispatcher = (function() {
     function EventDispatcher() {
       this.listeners = {};
       this.listeners_by_key = {};
     }
 
-    EventDispatcher.prototype.on = function(event, callback, context, conditions) {
-      return this.add_listener(new pi.EventListener(event, callback, context, false, conditions));
+    EventDispatcher.prototype.on = function(types, callback, context, conditions) {
+      var type, _i, _len, _ref, _results;
+      _ref = _types(types);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        _results.push(this.add_listener(new pi.EventListener(type, callback, context, false, conditions)));
+      }
+      return _results;
     };
 
-    EventDispatcher.prototype.one = function(event, callback, context, conditions) {
-      return this.add_listener(new pi.EventListener(event, callback, context, true, conditions));
+    EventDispatcher.prototype.one = function(type, callback, context, conditions) {
+      return this.add_listener(new pi.EventListener(type, callback, context, true, conditions));
     };
 
-    EventDispatcher.prototype.off = function(event, callback, context, conditions) {
-      return this.remove_listener(event, callback, context, conditions);
+    EventDispatcher.prototype.off = function(types, callback, context, conditions) {
+      var type, _i, _len, _ref, _results;
+      _ref = _types(types);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        _results.push(this.remove_listener(type, callback, context, conditions));
+      }
+      return _results;
     };
 
     EventDispatcher.prototype.trigger = function(event, data) {
@@ -354,7 +350,7 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
       }
       event.currentTarget = this;
       if (this.listeners[event.type] != null) {
-        utils.debug("Event: " + event.type);
+        utils.debug("Event: " + event.type, event);
         _ref = this.listeners[event.type];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           listener = _ref[_i];
@@ -934,10 +930,10 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
 
     Nod.prototype.value = function(val) {
       if (val != null) {
-        this.attr('value', val);
+        this.node.value = val;
         return this;
       } else {
-        return this.attr('value');
+        return this.node.value;
       }
     };
 
@@ -1041,11 +1037,11 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     };
 
     Nod.prototype.show = function() {
-      return this.nod.style.display = "block";
+      return this.node.style.display = "block";
     };
 
     Nod.prototype.hide = function() {
-      return this.nod.style.display = "none";
+      return this.node.style.display = "none";
     };
 
     Nod.prototype.focus = function() {
@@ -1056,6 +1052,12 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
     Nod.prototype.blur = function() {
       this.node.blur();
       return this;
+    };
+
+    Nod.prototype.dispose = function() {
+      this.off();
+      delete this.node._nod;
+      return delete this.node;
     };
 
     return Nod;
@@ -1269,7 +1271,9 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   utils = pi.utils;
   return pi.NodEvent.register_alias('mousewheel', 'DOMMouseScroll');
 })(this);
-;(function(context) {
+;var __slice = [].slice;
+
+(function(context) {
   "use strict";
   var level, pi, utils, val, _log_levels, _results, _show_log;
   pi = context.pi = context.pi || {};
@@ -1296,8 +1300,10 @@ var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; 
   _show_log = function(level) {
     return _log_levels[pi.log_level].sort <= _log_levels[level].sort;
   };
-  utils.log = function(level, message) {
-    return _show_log(level) && console.log("%c " + (utils.time.now('%H:%M:%S:%L')) + " [" + level + "]", "color: " + _log_levels[level].color, message);
+  utils.log = function() {
+    var level, messages;
+    level = arguments[0], messages = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return _show_log(level) && console.log("%c " + (utils.time.now('%H:%M:%S:%L')) + " [" + level + "]", "color: " + _log_levels[level].color, messages);
   };
   _results = [];
   for (level in _log_levels) {

@@ -1,0 +1,32 @@
+.content.tasks-content.full-width
+  .content-header
+    .controls
+      = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
+    .list-header
+      .headings
+        = sort_button :span, 'описание', class:'heading field desc'
+        = sort_button :span, 'класс', class:'heading field form', data: {'option-field' => 'form', 'option-list' => '@tasks_list', 'event-click' => '@@sort(@this.toggle)'}
+        = sort_button :span, 'предмет', class:'heading field сategory', data: {'option-field' => 'category_id', 'option-list' => '@tasks_list', 'event-click' => '@@sort(@this.toggle)'}
+      .actions
+        .buttons.is-hidden.pi@action_group
+          button.button-save.pi data-event-click="@@edit(@tasks_list.selected_item)"
+            | редактировать
+      .progress-wrapper
+        .pi.progressbar-line.is-hidden@loader data-component="load_progress"
+  .pi.list-container@tasks_list [
+            data-component="list" 
+            data-plugins="searchable selectable sortable"
+            data-option-select="radio check" 
+            data-option-scroll-object="window"
+            data-event-selected="@action_group.show"
+            data-event-selection-cleared="@action_group.hide"
+            ]
+    ul.list
+      - for task in @tasks
+        li.item data-id="#{task.id}" data-form="#{task.form}" data-category-id="#{task.category_id}"
+          .field.desc title="#{task.description}"
+            | #{task.description}
+          .field.form title="#{task.form}"
+            | #{task.form} 
+          .field.category title="#{task.category}"
+            | #{task.category} 

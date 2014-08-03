@@ -4,12 +4,11 @@ var __hasProp = {}.hasOwnProperty,
 
 (function(context) {
   "use strict";
-  var Nod, event_re, options_re, pi, utils, _str_reg;
+  var Nod, event_re, options_re, pi, utils, _fun_reg, _method_reg, _str_reg;
   pi = context.pi = context.pi || {};
   utils = pi.utils;
   pi.config = {};
   Nod = pi.Nod;
-  pi.API_DATA_KEY = "js_piece";
   pi._storage = {};
   pi.Base = (function(_super) {
     __extends(Base, _super);
@@ -22,6 +21,11 @@ var __hasProp = {}.hasOwnProperty,
         return;
       }
       this.pid = this.data('pi');
+      if (this.pid) {
+        pi._storage[this.pid] = this;
+      }
+      this.initialize();
+      this.init_plugins();
       this.visible = this.enabled = true;
       this.active = false;
       if (this.options.disabled || this.hasClass('is-disabled')) {
@@ -33,9 +37,7 @@ var __hasProp = {}.hasOwnProperty,
       if (this.options.active || this.hasClass('is-active')) {
         this.activate();
       }
-      this.initialize();
       this.setup_events();
-      this.init_plugins();
     }
 
     Base.prototype.init_nod = function(target) {
@@ -67,19 +69,25 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Base.prototype.initialize = function() {
-      if (this.pid) {
-        pi._storage[this.pid] = this;
-      }
       return this._initialized = true;
     };
 
     Base.prototype.setup_events = function() {
-      var event, handler, _ref, _results;
+      var event, handler, handlers, _ref, _results;
       _ref = this.options.events;
       _results = [];
       for (event in _ref) {
-        handler = _ref[event];
-        _results.push(this.on(event, pi.str_to_fun(handler, this)));
+        handlers = _ref[event];
+        _results.push((function() {
+          var _i, _len, _ref1, _results1;
+          _ref1 = handlers.split(/;\s*/);
+          _results1 = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            handler = _ref1[_i];
+            _results1.push(this.on(event, pi.str_to_event_handler(handler, this)));
+          }
+          return _results1;
+        }).call(this));
       }
       return _results;
     };
@@ -87,11 +95,12 @@ var __hasProp = {}.hasOwnProperty,
     Base.prototype.delegate = function(methods, to) {
       var method, _fn, _i, _len,
         _this = this;
+      to = typeof to === 'string' ? this[to] : to;
       _fn = function(method) {
-        _this[method] = function() {
+        return _this[method] = function() {
           var args;
           args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-          return _this[to][method].apply(_this, args);
+          return to[method].apply(to, args);
         };
       };
       for (_i = 0, _len = methods.length; _i < _len; _i++) {
@@ -174,21 +183,34 @@ var __hasProp = {}.hasOwnProperty,
     var component, component_name;
     component_name = utils.camelCase(nod.data('component') || 'base');
     component = pi[component_name];
-    if ((component != null) && !nod.data(pi.API_DATA_KEY)) {
+    if (component == null) {
+      throw new ReferenceError('unknown or initialized component: ' + component_name);
+    } else if (nod instanceof component) {
+      return nod;
+    } else {
       utils.debug("component created: " + component_name);
       return new pi[component_name](nod.node, pi.gather_options(nod));
-    } else {
-      throw new ReferenceError('unknown or initialized component: ' + component_name);
     }
   };
-  pi.piecify = function(context) {
-    context = context instanceof Nod ? context : new Nod(context || document.documentElement);
-    context.each(".pi", function(nod) {
-      return pi.init_component(new Nod(nod));
+  pi.dispose_component = function(component) {
+    var target;
+    component = target = typeof component === 'object' ? component : pi.find(component);
+    if (component == null) {
+      return;
+    }
+    component.dispose();
+    if (component.pid != null) {
+      return delete pi._storage[component.pid];
+    }
+  };
+  pi.piecify = function(context_) {
+    context = context_ instanceof Nod ? context_ : Nod.create(context_ || document.documentElement);
+    context.each(".pi", function(node) {
+      return pi.init_component(Nod.create(node));
     });
-    return pi.event.trigger('piecified', {
-      context: context
-    });
+    if (context_ == null) {
+      return pi.event.trigger('piecified');
+    }
   };
   pi.gather_options = function(el) {
     var key, matches, opts, val, _ref;
@@ -206,16 +228,15 @@ var __hasProp = {}.hasOwnProperty,
         continue;
       }
       if (matches = key.match(event_re)) {
-        opts.events[utils.snake_case(matches[1])] = utils.serialize(val);
+        opts.events[utils.snake_case(matches[1])] = val;
       }
     }
     return opts;
   };
-  pi.call = function(component, method_chain, args) {
-    var arg, error, key_, method, method_, target, target_, target_chain, _ref, _ref1, _void;
-    if (args == null) {
-      args = [];
-    }
+  _method_reg = /([\w\._]+)\.([\w_]+)/;
+  pi.call = function() {
+    var arg, args, component, error, key_, method, method_, method_chain, target, target_, target_chain, _ref, _ref1, _void;
+    component = arguments[0], method_chain = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
     try {
       utils.debug("pi call: component - " + component + "; method chain - " + method_chain);
       target = typeof component === 'object' ? component : pi.find(component);
@@ -224,7 +245,7 @@ var __hasProp = {}.hasOwnProperty,
         if (method_chain.indexOf(".") < 0) {
           return [method_chain, target];
         } else {
-          _ref = method_chain.match(/([\w\d\._]+)\.([\w\d_]+)/), _void = _ref[0], target_chain = _ref[1], method_ = _ref[2];
+          _ref = method_chain.match(_method_reg), _void = _ref[0], target_chain = _ref[1], method_ = _ref[2];
           target_ = target;
           _ref1 = target_chain.split('.');
           _fn = function(key_) {
@@ -267,26 +288,22 @@ var __hasProp = {}.hasOwnProperty,
       }
     }
   };
+  _fun_reg = /@([\w]+)(?:\.([\w\.]+)(?:\(([@\w\.\(\),'"-_]+)\))?)?/;
   pi.str_to_fun = function(callstr, host) {
     var arg, matches, target;
-    if (host == null) {
-      host = null;
-    }
-    matches = callstr.match(/@([\w\d_]+)(?:\.([\w\d_\.]+)(?:\(([@\w\d\.\(\),'"-_]+)\))?)?/);
+    matches = callstr.match(_fun_reg);
     target = matches[1] === 'this' ? host : matches[1];
     if (matches[2]) {
-      return curry(pi.call, [
-        target, matches[2], (matches[3] ? (function() {
-          var _i, _len, _ref, _results;
-          _ref = matches[3].split(",");
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            arg = _ref[_i];
-            _results.push(pi.prepare_arg(arg, host));
-          }
-          return _results;
-        })() : [])
-      ]);
+      return curry(pi.call, [target, matches[2]].concat(matches[3] ? (function() {
+        var _i, _len, _ref, _results;
+        _ref = matches[3].split(",");
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          arg = _ref[_i];
+          _results.push(pi.prepare_arg(arg, host));
+        }
+        return _results;
+      })() : []));
     } else {
       if (typeof target === 'object') {
         return function() {
@@ -299,6 +316,13 @@ var __hasProp = {}.hasOwnProperty,
       }
     }
   };
+  pi.str_to_event_handler = function(callstr, host) {
+    var _f;
+    _f = pi.str_to_fun(callstr, host);
+    return function(e) {
+      return _f(e.data);
+    };
+  };
   pi.event = new pi.EventDispatcher();
   utils.extend(Nod.prototype, {
     piecify: function() {
@@ -310,6 +334,9 @@ var __hasProp = {}.hasOwnProperty,
         this._pi_call = pi.str_to_fun(action, target);
       }
       return this._pi_call.call(null);
+    },
+    dispose: function() {
+      return pi.dispose_component(this);
     }
   });
   Nod.root.ready(function() {
@@ -430,26 +457,32 @@ var __hasProp = {}.hasOwnProperty,
 
 (function(context) {
   "use strict";
-  var item_klass, list_klass, pi, utils, _ref, _ref1, _ref2;
+  var pi, utils, _ref;
   pi = context.pi = context.pi || {};
   utils = pi.utils;
-  list_klass = (((_ref = pi.config.list) != null ? _ref.list_klass : void 0) != null) || 'list';
-  item_klass = (((_ref1 = pi.config.list) != null ? _ref1.item_klass : void 0) != null) || 'item';
   return pi.List = (function(_super) {
     __extends(List, _super);
 
     function List() {
-      _ref2 = List.__super__.constructor.apply(this, arguments);
-      return _ref2;
+      _ref = List.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     List.string_matcher = function(string) {
-      var path, query, regexp, _ref3;
+      var query, regexp, selectors, _ref1;
       if (string.indexOf(":") > 0) {
-        _ref3 = string.split(":"), path = _ref3[0], query = _ref3[1];
+        _ref1 = string.split(":"), selectors = _ref1[0], query = _ref1[1];
         regexp = new RegExp(query, 'i');
+        selectors = selectors.split(',');
         return function(item) {
-          return !!item.nod.find(path).text().match(regexp);
+          var selector, _i, _len, _ref2;
+          for (_i = 0, _len = selectors.length; _i < _len; _i++) {
+            selector = selectors[_i];
+            if (!!((_ref2 = item.nod.find(selector)) != null ? _ref2.text().match(regexp) : void 0)) {
+              return true;
+            }
+          }
+          return false;
         };
       } else {
         regexp = new RegExp(string, 'i');
@@ -459,42 +492,86 @@ var __hasProp = {}.hasOwnProperty,
       }
     };
 
+    List.object_matcher = function(obj, all) {
+      var key, val, _fn;
+      if (all == null) {
+        all = true;
+      }
+      _fn = function(key, val) {
+        if (typeof val === "string") {
+          return obj[key] = function(value) {
+            return !!value.match(new RegExp(val, 'i'));
+          };
+        } else if (!(typeof val === 'function')) {
+          return obj[key] = function(value) {
+            return val === value;
+          };
+        }
+      };
+      for (key in obj) {
+        val = obj[key];
+        _fn(key, val);
+      }
+      return function(item) {
+        var matcher, _any;
+        _any = false;
+        for (key in obj) {
+          matcher = obj[key];
+          if (item[key] != null) {
+            if (matcher(item[key])) {
+              _any = true;
+              if (!all) {
+                return _any;
+              }
+            } else {
+              if (all) {
+                return false;
+              }
+            }
+          }
+        }
+        return _any;
+      };
+    };
+
     List.prototype.initialize = function() {
       var _this = this;
-      this.items_cont = this.find("." + list_klass);
+      this.list_klass = this.options.list_klass || 'list';
+      this.item_klass = this.options.item_klass || 'item';
+      this.items_cont = this.find("." + this.list_klass);
       if (!this.items_cont) {
         this.items_cont = this;
       }
-      this.item_renderer = this.options.renderer;
-      if (this.item_renderer == null) {
-        this.item_renderer = function(nod) {
-          var item, key, val, _ref3;
-          item = {};
-          _ref3 = nod.data();
-          for (key in _ref3) {
-            if (!__hasProp.call(_ref3, key)) continue;
-            val = _ref3[key];
-            item[utils.snake_case(key)] = utils.serialize(val);
-          }
-          item.nod = nod;
-          return item;
-        };
-      }
+      this.item_renderer = function(nod) {
+        var item, key, val, _ref1;
+        item = {};
+        _ref1 = nod.data();
+        for (key in _ref1) {
+          if (!__hasProp.call(_ref1, key)) continue;
+          val = _ref1[key];
+          item[utils.snake_case(key)] = utils.serialize(val);
+        }
+        item.nod = nod;
+        return item;
+      };
       this.items = [];
       this.buffer = document.createDocumentFragment();
       this.parse_html_items();
       this._check_empty();
-      this.listen("." + item_klass, "click", function(e) {
-        if (e.origTarget.nodeName !== 'A') {
-          return _this._item_clicked(e.target);
-        }
-      });
+      if (this.options.noclick == null) {
+        this.listen("." + this.item_klass, "click", function(e) {
+          if (e.origTarget.nodeName !== 'A') {
+            _this._item_clicked(e.target);
+            return e.cancel();
+          }
+        });
+      }
       return List.__super__.initialize.apply(this, arguments);
     };
 
     List.prototype.parse_html_items = function() {
       var _this = this;
-      this.items_cont.each("." + item_klass, function(node) {
+      this.items_cont.each("." + this.item_klass, function(node) {
         return _this.add_item(pi.Nod.create(node));
       });
       return this._flush_buffer(false);
@@ -600,12 +677,12 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     List.prototype.where = function(query) {
-      var item, matcher, _i, _len, _ref3, _results;
-      matcher = typeof query === "string" ? this.constructor.string_matcher(query) : utils.object_matcher(query);
-      _ref3 = this.items;
+      var item, matcher, _i, _len, _ref1, _results;
+      matcher = typeof query === "string" ? this.constructor.string_matcher(query) : this.constructor.object_matcher(query);
+      _ref1 = this.items;
       _results = [];
-      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-        item = _ref3[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        item = _ref1[_i];
         if (matcher(item)) {
           _results.push(item);
         }
@@ -634,10 +711,10 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     List.prototype._update_indeces = function() {
-      var i, item, _i, _len, _ref3;
-      _ref3 = this.items;
-      for (i = _i = 0, _len = _ref3.length; _i < _len; i = ++_i) {
-        item = _ref3[i];
+      var i, item, _i, _len, _ref1;
+      _ref1 = this.items;
+      for (i = _i = 0, _len = _ref1.length; _i < _len; i = ++_i) {
+        item = _ref1[i];
         item.nod.data('listIndex', i);
       }
       return this._need_update_indeces = false;
@@ -656,15 +733,21 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     List.prototype._create_item = function(data) {
+      var item;
       if (data.nod instanceof pi.Nod) {
         return data;
       }
-      return this.item_renderer(data);
+      item = this.item_renderer(data);
+      if (this.options.pi_items != null) {
+        item.nod = pi.init_component(item.nod);
+        item.nod.piecify();
+      }
+      return item;
     };
 
     List.prototype._destroy_item = function(item) {
-      var _ref3;
-      return (_ref3 = item.nod) != null ? typeof _ref3.remove === "function" ? _ref3.remove() : void 0 : void 0;
+      var _ref1;
+      return (_ref1 = item.nod) != null ? typeof _ref1.remove === "function" ? _ref1.remove() : void 0 : void 0;
     };
 
     List.prototype._flush_buffer = function(append) {
@@ -796,7 +879,7 @@ var __hasProp = {}.hasOwnProperty,
     TextArea.prototype.autosizer = function() {
       var _this = this;
       return this._autosizer || (this._autosizer = function() {
-        return _this.input.style('height', _this.input.node.scrollHeight);
+        return _this.input.height(_this.input.node.scrollHeight);
       });
     };
 
@@ -998,6 +1081,133 @@ var __hasProp = {}.hasOwnProperty,
 
   })();
 })(this);
+;var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
+  __hasProp = {}.hasOwnProperty;
+
+(function(context) {
+  "use strict";
+  var pi, utils, _key_operand, _operands;
+  pi = context.pi = context.pi || {};
+  utils = pi.utils;
+  _operands = {
+    "?": function(values) {
+      return function(value) {
+        return __indexOf.call(values, value) >= 0;
+      };
+    },
+    "?&": function(values) {
+      return function(value) {
+        var v, _i, _len;
+        for (_i = 0, _len = values.length; _i < _len; _i++) {
+          v = values[_i];
+          if (!(__indexOf.call(value, v) >= 0)) {
+            return false;
+          }
+        }
+        return true;
+      };
+    },
+    ">": function(val) {
+      return function(value) {
+        return value >= val;
+      };
+    },
+    "<": function(val) {
+      return function(value) {
+        return value <= val;
+      };
+    }
+  };
+  _key_operand = /^([\w\d_]+)(\?&|>|<|\?)$/;
+  return pi.Filterable = (function() {
+    function Filterable(list) {
+      this.list = list;
+      this.list.filterable = this;
+      this.list.delegate(['filter'], this);
+      this.list.filtered = false;
+      return;
+    }
+
+    Filterable.prototype._matcher = function(params) {
+      var key, matches, obj, val;
+      obj = {};
+      for (key in params) {
+        if (!__hasProp.call(params, key)) continue;
+        val = params[key];
+        if ((matches = key.match(_key_operand))) {
+          obj[matches[1]] = _operands[matches[2]](val);
+        } else {
+          obj[key] = val;
+        }
+      }
+      return pi.List.object_matcher(obj);
+    };
+
+    Filterable.prototype._is_continuation = function(params) {
+      var key, val, _ref;
+      _ref = this._prevf;
+      for (key in _ref) {
+        if (!__hasProp.call(_ref, key)) continue;
+        val = _ref[key];
+        if (params[key] !== val) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    Filterable.prototype._start_filter = function() {
+      if (this.filtered) {
+        return;
+      }
+      this.filtered = true;
+      this.list.addClass('is-filtered');
+      this._all_items = utils.clone(this.list.items);
+      this._prevf = {};
+      return this.list.trigger('filter_start');
+    };
+
+    Filterable.prototype._stop_filter = function() {
+      if (!this.filtered) {
+        return;
+      }
+      this.filtered = false;
+      this.list.removeClass('is-filtered');
+      this.list.data_provider(this._all_items);
+      this._all_items = null;
+      return this.list.trigger('filter_stop');
+    };
+
+    Filterable.prototype.filter = function(params) {
+      var item, matcher, scope, _buffer;
+      if (params == null) {
+        return this._stop_filter();
+      }
+      if (!this.filtered) {
+        this._start_filter();
+      }
+      scope = this._is_continuation(params) ? this.list.items.slice() : utils.clone(this._all_items);
+      this._prevf = params;
+      matcher = this._matcher(params);
+      _buffer = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = scope.length; _i < _len; _i++) {
+          item = scope[_i];
+          if (matcher(item)) {
+            _results.push(item);
+          }
+        }
+        return _results;
+      })();
+      this.list.data_provider(_buffer);
+      return this.list.trigger('filter_update');
+    };
+
+    return Filterable;
+
+  })();
+})(this);
 ;(function(context) {
   "use strict";
   var $, pi, utils;
@@ -1006,11 +1216,11 @@ var __hasProp = {}.hasOwnProperty,
   utils = pi.utils;
   return pi.JstRenderer = (function() {
     function JstRenderer(list) {
-      if (typeof list.item_renderer !== 'string') {
+      if (typeof list.options.renderer !== 'string') {
         utils.error('JST renderer name undefined');
         return;
       }
-      list.jst_renderer = JST[list.item_renderer];
+      list.jst_renderer = JST[list.options.renderer];
       list.item_renderer = function(data) {
         var item;
         item = utils.clone(data);
@@ -1077,17 +1287,18 @@ var __hasProp = {}.hasOwnProperty,
 })(this);
 ;(function(context) {
   "use strict";
-  var pi, utils, _clear_mark_regexp, _selector_regexp;
+  var pi, utils, _clear_mark_regexp, _data_regexp, _selector_regexp;
   pi = context.pi = context.pi || {};
   utils = pi.utils;
   _clear_mark_regexp = /<mark>([^<>]*)<\/mark>/gim;
-  _selector_regexp = /[\.#a-z\s\[\]=\"-_]/i;
+  _selector_regexp = /[\.#a-z\s\[\]=\"-_,]/i;
+  _data_regexp = /data:([\w\d_]+)/gi;
   return pi.Searchable = (function() {
     function Searchable(list) {
       this.list = list;
       this.update_scope(this.list.options.search_scope);
       this.list.searchable = this;
-      this.list.delegate(['search', '_start_search', '_stop_search', '_highlight_item'], 'searchable');
+      this.list.delegate(['search', '_start_search', '_stop_search', '_highlight_item'], this);
       this.list.searching = false;
       return;
     }
@@ -1095,21 +1306,32 @@ var __hasProp = {}.hasOwnProperty,
     Searchable.prototype.update_scope = function(scope) {
       this.matcher_factory = this._matcher_from_scope(scope);
       if (scope && _selector_regexp.test(scope)) {
-        return this.list._highlight_element = function(item) {
-          return item.nod.find(scope);
+        return this._highlight_elements = function(item) {
+          var selector, _i, _len, _ref, _results;
+          _ref = scope.split(',');
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            selector = _ref[_i];
+            _results.push(item.nod.find(selector));
+          }
+          return _results;
         };
       } else {
-        return this.list._highlight_element = function(item) {
-          return item.nod;
+        return this._highlight_elements = function(item) {
+          return [item.nod];
         };
       }
     };
 
     Searchable.prototype._matcher_from_scope = function(scope) {
-      var key, matches, obj;
-      return this.matcher_factory = scope == null ? pi.List.string_matcher : (matches = scope.match(/^data:([\w\d_]+)/)) ? (obj = {}, key = matches[1], function(value) {
-        obj[key] = value;
-        return utils.object_matcher(obj);
+      var keys, obj;
+      return this.matcher_factory = scope == null ? pi.List.string_matcher : _data_regexp.test(scope) ? (scope = scope.replace(_data_regexp, "$1"), obj = {}, keys = scope.split(","), function(value) {
+        var key, _i, _len;
+        for (_i = 0, _len = keys.length; _i < _len; _i++) {
+          key = keys[_i];
+          obj[key] = value;
+        }
+        return pi.List.object_matcher(obj, false);
       }) : function(value) {
         return pi.List.string_matcher(scope + ':' + value);
       };
@@ -1125,10 +1347,10 @@ var __hasProp = {}.hasOwnProperty,
         return;
       }
       this.searching = true;
-      this.addClass('is-searching');
-      this._all_items = utils.clone(this.items);
-      this.searchable._prevq = '';
-      return this.trigger('search_start');
+      this.list.addClass('is-searching');
+      this._all_items = utils.clone(this.list.items);
+      this._prevq = '';
+      return this.list.trigger('search_start');
     };
 
     Searchable.prototype._stop_search = function() {
@@ -1136,22 +1358,30 @@ var __hasProp = {}.hasOwnProperty,
         return;
       }
       this.searching = false;
-      this.removeClass('is-searching');
-      this.data_provider(this._all_items);
+      this.list.removeClass('is-searching');
+      this.list.data_provider(this._all_items);
       this._all_items = null;
-      return this.trigger('search_stop');
+      return this.list.trigger('search_stop');
     };
 
     Searchable.prototype._highlight_item = function(query, item) {
-      var nod, _raw_html, _regexp;
-      nod = this._highlight_element(item);
-      _raw_html = nod.html();
-      _regexp = new RegExp("((?:^|>)[^<>]*?)(" + query + ")", "gim");
-      _raw_html = _raw_html.replace(_clear_mark_regexp, "$1");
-      if (query !== '') {
-        _raw_html = _raw_html.replace(_regexp, '$1<mark>$2</mark>');
+      var nod, nodes, _i, _len, _raw_html, _regexp, _results;
+      nodes = this._highlight_elements(item);
+      _results = [];
+      for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+        nod = nodes[_i];
+        if (!(nod != null)) {
+          continue;
+        }
+        _raw_html = nod.html();
+        _regexp = new RegExp("((?:^|>)[^<>]*?)(" + query + ")", "gim");
+        _raw_html = _raw_html.replace(_clear_mark_regexp, "$1");
+        if (query !== '') {
+          _raw_html = _raw_html.replace(_regexp, '$1<mark>$2</mark>');
+        }
+        _results.push(nod.html(_raw_html));
       }
-      return nod.html(_raw_html);
+      return _results;
     };
 
     Searchable.prototype.search = function(q, highlight) {
@@ -1168,9 +1398,9 @@ var __hasProp = {}.hasOwnProperty,
       if (!this.searching) {
         this._start_search();
       }
-      scope = this.searchable._is_continuation(q) ? this.items.slice() : utils.clone(this._all_items);
-      this.searchable._prevq = q;
-      matcher = this.searchable.matcher_factory(q);
+      scope = this._is_continuation(q) ? this.list.items.slice() : utils.clone(this._all_items);
+      this._prevq = q;
+      matcher = this.matcher_factory(q);
       _buffer = (function() {
         var _i, _len, _results;
         _results = [];
@@ -1182,14 +1412,14 @@ var __hasProp = {}.hasOwnProperty,
         }
         return _results;
       })();
-      this.data_provider(_buffer);
+      this.list.data_provider(_buffer);
       if (highlight) {
         for (_i = 0, _len = _buffer.length; _i < _len; _i++) {
           item = _buffer[_i];
           this._highlight_item(q, item);
         }
       }
-      return this.trigger('search_update');
+      return this.list.trigger('search_update');
     };
 
     return Searchable;
@@ -1212,7 +1442,7 @@ var __hasProp = {}.hasOwnProperty,
         return _this.list.items[pi.Nod.create(node).data('listIndex')].selected = true;
       });
       this.list.selectable = this;
-      this.list.delegate(['clear_selection', 'selected', 'selected_item', 'select_all', '_select', '_deselect', '_toggle_select'], 'selectable');
+      this.list.delegate(['clear_selection', 'selected', 'selected_item', 'select_all', '_select', '_deselect', '_toggle_select'], this);
       return;
     }
 
@@ -1225,11 +1455,11 @@ var __hasProp = {}.hasOwnProperty,
         if (_this.type.match('radio') && !e.data.item.selected) {
           _this.list.clear_selection(true);
           _this.list._select(e.data.item);
-          _this.list.trigger('selected');
+          _this.list.trigger('selected', e.data.item);
         } else if (_this.type.match('check')) {
           _this.list._toggle_select(e.data.item);
           if (_this.list.selected().length) {
-            _this.list.trigger('selected');
+            _this.list.trigger('selected', _this.selected());
           } else {
             _this.list.trigger('selection_cleared');
           }
@@ -1259,6 +1489,7 @@ var __hasProp = {}.hasOwnProperty,
     Selectable.prototype._select = function(item) {
       if (!item.selected) {
         item.selected = true;
+        this._selected = null;
         return item.nod.addClass('is-selected');
       }
     };
@@ -1266,6 +1497,7 @@ var __hasProp = {}.hasOwnProperty,
     Selectable.prototype._deselect = function(item) {
       if (item.selected) {
         item.selected = false;
+        this._selected = null;
         return item.nod.removeClass('is-selected');
       }
     };
@@ -1283,39 +1515,45 @@ var __hasProp = {}.hasOwnProperty,
       if (silent == null) {
         silent = false;
       }
-      _ref = this.items;
+      _ref = this.list.items;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         item = _ref[_i];
         this._deselect(item);
       }
       if (!silent) {
-        return this.trigger('selection_cleared');
+        return this.list.trigger('selection_cleared');
       }
     };
 
     Selectable.prototype.select_all = function() {
       var item, _i, _len, _ref;
-      _ref = this.items;
+      _ref = this.list.items;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         item = _ref[_i];
         this._select(item);
       }
       if (this.selected().length) {
-        return this.trigger('selected');
+        return this.list.trigger('selected', this.selected());
       }
     };
 
     Selectable.prototype.selected = function() {
-      var item, _i, _len, _ref, _results;
-      _ref = this.items;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        item = _ref[_i];
-        if (item.selected) {
-          _results.push(item);
-        }
+      var item;
+      if (this._selected == null) {
+        this._selected = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this.list.items;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            item = _ref[_i];
+            if (item.selected) {
+              _results.push(item);
+            }
+          }
+          return _results;
+        }).call(this);
       }
-      return _results;
+      return this._selected;
     };
 
     Selectable.prototype.selected_item = function() {
@@ -1341,7 +1579,7 @@ var __hasProp = {}.hasOwnProperty,
     function Sortable(list) {
       this.list = list;
       this.list.sortable = this;
-      this.list.delegate(['sort'], 'sortable');
+      this.list.delegate(['sort'], this);
       return;
     }
 
@@ -1350,12 +1588,12 @@ var __hasProp = {}.hasOwnProperty,
         reverse = false;
       }
       if (typeof fields === 'object') {
-        utils.sort(this.items, fields, reverse);
+        utils.sort(this.list.items, fields, reverse);
       } else {
-        utils.sort_by(this.items, fields, reverse);
+        utils.sort_by(this.list.items, fields, reverse);
       }
-      this.data_provider(this.items.slice());
-      return this.trigger('sort_update', {
+      this.list.data_provider(this.list.items.slice());
+      return this.list.trigger('sort_update', {
         fields: fields,
         reverse: reverse
       });

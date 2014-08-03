@@ -1,5 +1,5 @@
 class Golimo < ActiveRecord::Base
-  has_many :assignments
+  has_many :assignments, dependent: :destroy
   has_many :tasks, through: :assignments
 
   def has_money?(value=0)

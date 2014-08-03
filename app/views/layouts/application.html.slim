@@ -2,6 +2,9 @@ doctype html
 html lang="ru"
   == render 'layouts/dochead'
   body.pi@body 
+    .status-container
+      .status.success.pi.is-hidden@status_success data-component="status_message" data-option-delay="2000"
+      .status.error.pi.is-hidden@status_error data-component="status_message" data-option-delay="4000"
     .main-progress.progressbar-line
     == render 'shared/header'
     .main-wrap  

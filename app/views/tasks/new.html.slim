@@ -1,0 +1,14 @@
+.content.tasks-content.full-width
+  form.form action="/tasks" method="POST" accept-charset="UTF-8"
+    .field
+      = label_tag 'task[description]', 'Описание', class: 'field-label'
+      = text_input_wrap do
+        = text_area_tag 'task[description]', nil, class: 'text-input'
+      end
+    .field
+      = label_tag 'task[number]', 'номер', class: 'field-label'
+      = text_input_wrap do
+        = text_area_tag 'task[description]', nil, class: 'text-input'
+      end
+
+  end

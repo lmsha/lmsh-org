@@ -13,7 +13,7 @@ do (context = this) ->
           _headers = {'X-CSRF-Token': context.AUTH_TOKEN}
 
           if method is 'GET'
-            params = ["locale=#{context.I18n.locale}"]
+            params = []
             if data?
               params.push("#{ key }=#{ encodeURIComponent(val) }") for own key, val of data
             url+="?#{ params.join("&") }"
@@ -43,7 +43,7 @@ do (context = this) ->
               
               resolve response
             else
-              reject Error(req.statusText)
+              reject Error(req.responseText)
 
   
           req.onerror = ->

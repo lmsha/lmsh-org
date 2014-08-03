@@ -8,4 +8,12 @@ class GolimoDecorator < Draper::Decorator
   def money
     object.money.to_i
   end
+
+  def total_tasks
+    object.tasks.count(:all)
+  end
+
+  def klass
+    object.assignments.incomplete.empty? ? '' : 'has-task'
+  end
 end

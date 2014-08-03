@@ -1,0 +1,14 @@
+== content_for :popup
+  .submit-task.popup.is-hidden.pi@submit_task_popup data-event-hidden="@submit_task_form.clear()"
+    .title Принять задачу
+    .form.pi@submit_task_form data-component="form" data-event-clear="@select_category.update_text(); @select_simple.update_text()"
+      = hidden_field_tag 'id' 
+      .field
+        = label_tag 'fullname', 'Имя', class: 'field-label'
+        = text_area 'fullname', '', '', class: 'pi is-readonly is-transparent', data: {:component => 'text_area'}
+      .field
+        = hidden_field_tag 'task_id'
+        = label_tag 'task_name', 'Задание', class: 'field-label'
+        = text_area 'task_name', '', '', class: 'pi is-readonly is-transparent', data: {:component => 'text_area'}
+      = link_to 'Принять', '@@submit_task(@submit_task_form.value())', class: 'button inline button-save'
+      = link_to 'Откатить', '@@cancel_task(@submit_task_form.value())', class: 'button inline button-cancel'

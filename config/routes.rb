@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       post :buy_task
       post :submit_task
       post :decline_task
+      get :current_task
     end
   end
 

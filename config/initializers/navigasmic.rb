@@ -29,7 +29,9 @@ Navigasmic.setup do |config|
 
     n.item 'Голимчики', controller: 'golimos'
     n.item 'Dashboard', controller: 'dashboard'
+    n.item 'Задачи', controller: 'tasks'
     n.item 'Пользователи', controller: 'users', hidden_unless: proc{ current_role.manager? }
+
 
     # Groups and Items:
     #

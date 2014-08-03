@@ -31,6 +31,15 @@ class TaskValue
     val.round(2)
   end
 
+  def self.values
+    values = {buy: [], sell: []}
+    Category.enums.each do |cat,id|
+      values[:buy] << {title: cat, simple: self.buy(id,1), dif: self.buy(id,0)}
+      values[:sell] << {title: cat, simple: self.sell(id,1), dif: self.sell(id,0)}
+    end
+    values
+  end
+
   def self.update(category_id)
     sum = dif_solved(category_id).get + SIMPLE_K*simple_solved(category_id).get + OPEN_K * (dif_open(category_id).get + SIMPLE_K*simple_open(category_id).get)
     active_key("coef",category_id.to_s).set sum

@@ -10,6 +10,13 @@ module InputHelper
     end
   end
 
+  def text_input_wrap(options={}, &block)
+    merge_class! options, 'text-input-wrap'
+    content_tag(:div, nil, options) do
+      concat capture(&block)
+    end
+  end
+
   def text_input(name = nil, placeholder ='', klass ='', options = {})
     merge_class! options, 'text-input-wrap '+ klass
     content_tag(:div, nil, options) do

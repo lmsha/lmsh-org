@@ -88,15 +88,17 @@ do (context = this) ->
 
       pi.event.on 'piecified', => @initialize()
 
-    initialize: () ->      
+    initialize: (@view) ->      
       @context = this
 
-      _base_name = utils.camelCase(@_collection_id)
-      _suffix = @class_name().replace _base_name, ''
+      unless @view?
+        _base_name = utils.camelCase(@_collection_id)
+        _suffix = @class_name().replace _base_name, ''
 
-      if pi.views["#{_base_name}#{_suffix}View"]?
-        @view = new pi.views["#{_base_name}#{_suffix}View"]()
-      else
+        if pi.views["#{_base_name}#{_suffix}View"]?
+          @view = new pi.views["#{_base_name}#{_suffix}View"]()
+      
+      unless @view?
         utils.error "View not found: #{_base_name}#{_suffix}View"
 
     class_name: klass_name

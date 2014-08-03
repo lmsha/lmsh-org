@@ -19,13 +19,13 @@ describe GolimosController do
     @dif_task.destroy
   end
 
-  let(:golimo) { FactoryGirl.create :golimo, team: 1, money: BigDecimal(10)}
+  let(:golimo) { FactoryGirl.create :golimo, team: 1, form: 8, money: BigDecimal(10)}
   let(:task) { FactoryGirl.create :task, category_id: 1, simple: 1, form: 8}
 
   it "should buy task" do
     _old_price = TaskValue.buy 1, 1
 
-    post :buy_task, id: golimo.id, category_id: 1, simple: 1, form: 8
+    post :buy_task, id: golimo.id, category_id: 1, simple: 1
     expect(response.status).to eq(200)
 
     golimo.reload
@@ -40,14 +40,14 @@ describe GolimosController do
   it "should not buy task if user has one" do
     golimo.assignments.create! task: task
     
-    post :buy_task, id: golimo.id, category_id: 1, simple: 1, form: 8
+    post :buy_task, id: golimo.id, category_id: 1, simple: 1
     expect(response.status).to eq(403)
     expect(response.body).to eq "нельзя брать два задания"
     expect(golimo.tasks.count(:all)).to eq 1
   end
 
   it "should not buy task if there is no tasks" do
-    post :buy_task, id: golimo.id, category_id: 1, simple: 1, form: 8
+    post :buy_task, id: golimo.id, category_id: 1, simple: 1
     expect(response.status).to eq(200)
     info = parse_json(response.body, "task")
 
@@ -56,14 +56,14 @@ describe GolimosController do
 
     golimo.deposit(10)
 
-    post :buy_task, id: golimo.id, category_id: 1, simple: 1, form: 8
+    post :buy_task, id: golimo.id, category_id: 1, simple: 1
     
     expect(response.status).to eq(403)
     expect(response.body).to eq "нет подходящих заданий"
   end
 
   it "should not buy task if user has no money" do
-    post :buy_task, id: golimo.id, category_id: 1, simple: 0, form: 8
+    post :buy_task, id: golimo.id, category_id: 1, simple: 0
     expect(response.status).to eq(403)
     expect(response.body).to eq "недостаточно средств"
     expect(golimo.tasks.count(:all)).to eq 0

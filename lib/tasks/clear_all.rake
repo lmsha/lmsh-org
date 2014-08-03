@@ -9,4 +9,8 @@ namespace :clear_all do
     Golimo.destroy_all
   end
 
+  task tasks: :environment do
+    Task.destroy_all
+  end
+
 end
