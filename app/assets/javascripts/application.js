@@ -4,6 +4,7 @@
 //= require pieces.core
 //= require pieces
 //= require former
+//= require faye
 //= require ./controllers/index
 //= require ./views/index
 //= require_tree ./components

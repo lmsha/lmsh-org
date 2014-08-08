@@ -27,5 +27,12 @@ module Lmsh
       g.helper false
       g.test_framework false
     end
+
+    config.middleware.delete Rack::Lock
+
+    config.middleware.use FayeRails::Middleware, mount: '/faye', :timeout => 25 do
+      map '/event' => RealtimeEventController
+      map default: :block
+    end
   end
 end

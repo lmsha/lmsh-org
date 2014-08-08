@@ -25,7 +25,8 @@ class GolimosController < ApplicationController
         @user.withdraw value
         @task.value = value
         TaskValue.opened @task
-        TaskCounter.decr @user.team, @task.category_id, @task.form, @task.simple
+        val = TaskCounter.decr @user.team, @task.category_id, @task.form, @task.simple
+        RealtimeEventController.publish('/event',{type: 'counter', team: @user.team, category_id: @task.category_id, form: @task.form, simple: @task.simple, value: val})
         render json: @task.decorate
       else
         render status: :forbidden, text: "недостаточно средств" and return

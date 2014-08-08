@@ -36,6 +36,9 @@ gem "csso-rails"
 gem "font-awesome-rails"
 gem 'skim'
 
+gem 'faye-rails'
+gem 'thin'
+
 git 'git://github.com/palkan/evil-front.git', :branch => "fix-rails-helpers" do 
   gem 'evil-front'
 end
