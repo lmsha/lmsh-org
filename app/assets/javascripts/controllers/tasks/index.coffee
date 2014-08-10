@@ -14,6 +14,15 @@ do (context = this) ->
     initialize: ->
       super new pi.views.TasksView()
 
+    make_diff: (data) ->
+      if data?
+        pi.net.post("/tasks/#{data.id}/make_diff", {}).then(
+          (response) =>
+            @view.success_status.show 'done'
+        ).catch(
+          (e) =>
+            @view.error e.message
+        )
 
     destroy: (data) ->
       true ## todo: add confirm and destroy

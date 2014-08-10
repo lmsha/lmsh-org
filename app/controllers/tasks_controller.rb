@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  before_filter :set_task, only: [:edit, :update, :destroy]
+  before_filter :set_task, only: [:edit, :update, :destroy, :make_diff]
 
   def index
     @tasks = Task.all.decorate
@@ -16,6 +16,12 @@ class TasksController < ApplicationController
     else
       redirect_to new_task_path
     end
+  end
+
+  def make_diff
+    @task.simple = 0
+    @task.save
+    render json: {}
   end
 
   def new

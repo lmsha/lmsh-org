@@ -16,4 +16,8 @@ class TaskDecorator < Draper::Decorator
   def form
     "#{object.form} класс"
   end
+
+  def name
+    ""
+  end
 end

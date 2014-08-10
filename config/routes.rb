@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   resources :tasks
 
+  post "tasks/:id/make_diff" => 'tasks#make_diff'
+
   resources :assignments
 
   resources :golimos do
