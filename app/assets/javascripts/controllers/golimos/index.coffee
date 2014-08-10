@@ -11,6 +11,9 @@ do (context = this) ->
       @_scope = new pi.utils.Scope()
       super 'golimos', 'main', {add_task: new pi.controllers.AddTaskGolimos(), submit_task: new pi.controllers.SubmitTaskGolimos()}
 
+    initialize: ->
+      super new pi.views.GolimosView()
+
     destroy: (data) ->
       true ## todo: add confirm and destroy
 

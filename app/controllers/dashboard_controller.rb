@@ -1,6 +1,9 @@
 class DashboardController < ApplicationController
   def index
-    @counters = TaskCounter.values
     @values = TaskValue.values
+  end
+
+  def counters
+    @counters = TaskCounter.values
   end
 end

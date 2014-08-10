@@ -1,0 +1,1 @@
+.progressbar-line{position:absolute;top:0;left:0;width:0;-webkit-transition:all 500ms cubic-bezier(0.075, 0.82, 0.165, 1);transition:all 500ms cubic-bezier(0.075, 0.82, 0.165, 1);background:#007fe3;height:2px;z-index:100000}.main-progress{position:fixed}

@@ -11,6 +11,9 @@ do (context = this) ->
       @_scope = new pi.utils.Scope()
       super 'golimos'
 
+    initialize: ->
+      super new pi.views.GolimosSubmitTaskView()
+
     destroy: (items) ->
       false
 
@@ -21,6 +24,26 @@ do (context = this) ->
       @view.popup.close().then( =>
         @exit()
       )
+
+    submit_task: (data) ->
+      if data?
+        pi.net.post("/golimos/#{data.id}/submit_task", data).then(
+          (response) =>
+            @view.task_submited(response)
+        ).catch(
+          (e) =>
+            @view.error e.message
+        )
+
+    decline_task: (data) ->
+      if data?
+        pi.net.post("/golimos/#{data.id}/decline_task", data).then(
+          (response) =>
+            @view.task_declined(response)
+        ).catch(
+          (e) =>
+            @view.error e.message
+        )
 
     switched_from_main: (data) ->
       @view.popup.open(@view.submit_task_popup, align: false, close: => @close())

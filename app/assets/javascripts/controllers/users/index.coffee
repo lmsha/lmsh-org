@@ -10,6 +10,9 @@ do (context = this) ->
     constructor: -> 
       super 'users', 'main'
 
+    initialize: ->
+      super new pi.views.UsersView()
+
     destroy: (data) ->
       true ## todo: add confirm and destroy
 

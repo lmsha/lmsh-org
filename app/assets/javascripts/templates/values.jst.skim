@@ -1,0 +1,19 @@
+.values
+  .inline.team-cont
+    .title 
+      |Покупка
+      - for cat in @buy
+        .inline.category
+          p
+            span.cat-title.item =cat.title
+            span.item.simple =cat.simple
+            span.item.dif =cat.dif
+  .inline.team-cont
+    .title 
+      |Продажа
+      - for cat in @sell
+        .inline.category
+          p
+            span.cat-title.item =cat.title
+            span.item.simple =cat.simple
+            span.item.dif =cat.dif

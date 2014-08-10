@@ -43,7 +43,7 @@ git 'git://github.com/palkan/evil-front.git', :branch => "fix-rails-helpers" do
   gem 'evil-front'
 end
 
-gem 'puma'
+#gem 'puma'
 
 group :development, :test do  
   gem "rspec", "~> 2.14.0"

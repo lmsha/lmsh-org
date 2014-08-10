@@ -1,0 +1,11 @@
+li.item data-id="#{@id}" data-name="#{@name}" data-fullname="#{@fullname}" data-last-name="#{@last_name}" data-team="#{@team}" data-total-tasks="#{@total_tasks}" data-form="#{@form}" class="#{@klass}"
+          .field.name title="#{@fullname}"
+            |#{@fullname}
+          .field.form title="#{@form}"
+            |#{@form}
+          .field.team title="#{@team}"
+            |#{@team}
+          .field.team title="#{@money}"
+            |#{@money}
+          .field.team 
+            |#{@total_tasks}

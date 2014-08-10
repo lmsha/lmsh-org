@@ -1,6 +1,7 @@
-.content.tasks-content.full-width
+.content.tasks-content.tasks-list.full-width
   .content-header
     .controls
+      = button_tag 'Добавить', class: 'button button-save pi', data: {'event-click'=>"@@goto('/tasks/new')"}
       = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
     .list-header
       .headings
@@ -9,7 +10,7 @@
         = sort_button :span, 'предмет', class:'heading field сategory', data: {'option-field' => 'category_id', 'option-list' => '@tasks_list', 'event-click' => '@@sort(@this.toggle)'}
       .actions
         .buttons.is-hidden.pi@action_group
-          button.button-save.pi data-event-click="@@edit(@tasks_list.selected_item)"
+          button.button-save.pi.is-hidden data-event-click="@@edit(@tasks_list.selected_item)"
             | редактировать
       .progress-wrapper
         .pi.progressbar-line.is-hidden@loader data-component="load_progress"

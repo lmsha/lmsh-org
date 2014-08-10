@@ -25,8 +25,10 @@ class GolimosController < ApplicationController
         @user.withdraw value
         @task.value = value
         TaskValue.opened @task
-        val = TaskCounter.decr @user.team, @task.category_id, @task.form, @task.simple
-        RealtimeEventController.publish('/event',{type: 'counter', team: @user.team, category_id: @task.category_id, form: @task.form, simple: @task.simple, value: val})
+        val = TaskCounter.decr @user.team, @task.category_id, @task.form, @task.simple.to_i
+        @user = @user.decorate
+        send_event 'user', @user.as_json.merge(klass: @user.klass, total_tasks: @user.total_tasks, fullname: @user.fullname)
+        send_event 'values', TaskValue.values
         render json: @task.decorate
       else
         render status: :forbidden, text: "недостаточно средств" and return
@@ -49,6 +51,9 @@ class GolimosController < ApplicationController
     @assignment.complete!
     @user.deposit value
     TaskValue.solved @task
+    @user = @user.decorate
+    send_event 'user', @user.as_json.merge(klass: @user.klass, total_tasks: @user.total_tasks, fullname: @user.fullname)
+    send_event 'values', TaskValue.values
     render json: @assignment
   end
 
@@ -56,6 +61,9 @@ class GolimosController < ApplicationController
     @assignment.score = 0
     @assignment.complete!
     TaskValue.declined @task
+    @user = @user.decorate
+    send_event 'user', @user.as_json.merge(klass: @user.klass, total_tasks: @user.total_tasks, fullname: @user.fullname)
+    send_event 'values', TaskValue.values
     render json: @assignment
   end
 

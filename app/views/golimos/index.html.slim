@@ -2,7 +2,7 @@
   .dashboard-widget
   .content-header
     .controls
-      = search_field 'q', 'Поиск', class: 'pi', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
+      = search_field 'q', 'Поиск', class: 'pi is-hidden', data: {'event-query' => '@@search(@this.value,true)', 'component' => 'search_input', 'pi' => 'main_search'}
     .list-header
       .headings
         = sort_button :span, 'ФИО', class:'heading field name is-sort-desc', data: {'option-field' => 'last_name', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
@@ -10,7 +10,7 @@
         = sort_button :span, 'отряд', class:'heading field team', data: {'option-field' => 'team', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
         = sort_button :span, 'остаток', class:'heading field team', data: {'option-field' => 'money', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
         = sort_button :span, 'заданий', class:'heading field team', data: {'option-field' => 'total_tasks', 'option-list' => '@users_list', 'event-click' => '@@sort(@this.toggle)'}
-      .actions
+      .actions.pi data-plugins="bubbleable"
         .buttons.is-hidden.pi@action_group
           button.button-save.pi data-event-click="@@add_task(@users_list.selected_item)"
             | выдать задачу
@@ -20,9 +20,9 @@
         .pi.progressbar-line.is-hidden@loader data-component="load_progress"
   .pi.list-container@users_list [
             data-component="list" 
-            data-plugins="searchable selectable sortable"
+            data-plugins="searchable selectable sortable jst_renderer redrawable"
             data-option-select="radio check" 
-            data-option-scroll-object="window"
+            data-option-renderer="templates/golimo"
             data-event-selected="@action_group.show"
             data-event-selection-cleared="@action_group.hide"
             ]

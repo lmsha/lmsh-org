@@ -18,6 +18,10 @@ class TasksController < ApplicationController
     end
   end
 
+  def new
+    @task = Task.new
+  end
+
   def update
     if @task.update(task_params)
       redirect_to tasks_path

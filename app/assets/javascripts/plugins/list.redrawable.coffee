@@ -15,20 +15,21 @@ do (context = this) ->
 
     # todo: @optimize don't remove nod, but replace innerHtml
 
-    redraw_item: (item) ->
-      index = @items.indexOf(item)
+    redraw_item: (item, data) ->
+      index = @list.items.indexOf(item)
       if index > -1
         item.nod.detach()
         delete item.nod
-        item = @item_renderer item
+        item = @list.item_renderer data
 
         item.nod.data 'listIndex', index
 
-        @items[index] = item
+        @list.items[index] = item
 
-        if index < (@size()-1)
-          _after = @items[index+1]   
+        if index < (@list.size()-1)
+          _after = @list.items[index+1]   
           _after.nod.insertBefore item.nod
         else
-          @items_cont.append item.nod      
+          @list.items_cont.append item.nod     
+        item 
       return  

@@ -1,35 +1,20 @@
 .content.full-width
   .content-header
-    .dashboard
+    .dashboard.pi@dashboard
       .values
         .inline.team-cont
           .title Покупка
           - for cat in @values[:buy]
-            inline.category
-              span.cat-title.item =cat[:title]
-              span.item простые
-              span.item =cat[:simple]
-              span.item сложные
-              span.item =cat[:dif]
+            .inline.category
+              p
+                span.cat-title.item =cat[:title]
+                span.item.simple =cat[:simple]
+                span.item.dif =cat[:dif]
         .inline.team-cont
           .title Продажа
           - for cat in @values[:sell]
-            inline.category
-              span.cat-title.item =cat[:title]
-              span.item простые
-              span.item =cat[:simple]
-              span.item сложные
-              span.item =cat[:dif]
-
-      - for counter in @counters
-        .inline.team-cont
-          .team =counter[:team]
-          - for cat in counter[:categories]
-            .inline.category 
-              span.cat-title.item = cat[:title]
-              .forms
-                - for f in cat[:forms]
-                  .form-title.item =f[:title]
-                  .form-value.item 
-                    ="#{f[:simple]}+#{f[:dif]}"        
-        
+            .inline.category
+              p
+                span.cat-title.item =cat[:title]
+                span.item.simple =cat[:simple]
+                span.item.dif =cat[:dif]        

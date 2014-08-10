@@ -10,4 +10,5 @@
 //= require_tree ./components
 //= require_tree ./plugins
 //= require_tree ./hooks
+//= require_tree ./templates
 //= require_self

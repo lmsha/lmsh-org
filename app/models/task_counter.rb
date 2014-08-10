@@ -37,7 +37,7 @@ class TaskCounter
 
   private
     def self.redis_key(team, category_id, form, simple)
-      suf = simple ? "" : ":difficult"
+      suf = simple>0 ? "" : ":difficult"
       "#{Rails.application.config.redis_db}:tskc::#{team}:#{category_id}:#{form}:#{suf}"
     end
 end

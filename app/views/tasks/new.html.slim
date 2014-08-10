@@ -1,14 +1,52 @@
 .content.tasks-content.full-width
-  form.form action="/tasks" method="POST" accept-charset="UTF-8"
+  h1.title Добавить задачу
+  = form_for @task, {html: {class: 'form'}}
     .field
       = label_tag 'task[description]', 'Описание', class: 'field-label'
-      = text_input_wrap do
+      = text_input_wrap({class: 'desc'}) do
         = text_area_tag 'task[description]', nil, class: 'text-input'
       end
     .field
       = label_tag 'task[number]', 'номер', class: 'field-label'
       = text_input_wrap do
-        = text_area_tag 'task[description]', nil, class: 'text-input'
+        = text_field_tag 'task[number]', nil, class: 'text-input'
       end
+    .field
+      = label_tag 'task[category_id]', 'предмет', class: 'field-label'
+      = select_wrap do
+        select.select-input name="task[category_id]"
+          option value="" 
+            |не выбрано
+          option value="1" 
+            |математика
+          option value="2" 
+            |физика
+          option value="3" 
+            |биология
+          option value="4" 
+            |химия
+          option value="5" 
+            |гум
+      end
+    .field
+      = label_tag 'task[form]', 'класс', class: 'field-label'
+      = select_wrap do
+        select.select-input name="task[form]"
+          option value="" 
+            |не выбрано
+          option value="7" 
+            |7
+          option value="8" 
+            |8
+          option value="9" 
+            |9
+          option value="10" 
+            |10
+      end
+    .field
+      = check_box 'task[simple]', 0, 'сложная?'
+
+    = submit_tag 'Добавить', class: 'button pi button-enter'
+
 
   end

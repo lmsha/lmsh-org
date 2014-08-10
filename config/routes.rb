@@ -23,4 +23,5 @@ Rails.application.routes.draw do
   root 'users#index'
 
   get 'dashboard' => 'dashboard#index'
+  get 'dashboard/counters' => 'dashboard#counters' 
 end

@@ -9,6 +9,8 @@
       .field
         = hidden_field_tag 'task_id'
         = label_tag 'task_name', 'Задание', class: 'field-label'
-        = text_area 'task_name', '', '', class: 'pi is-readonly is-transparent', data: {:component => 'text_area'}
-      = link_to 'Принять', '@@submit_task(@submit_task_form.value())', class: 'button inline button-save'
-      = link_to 'Откатить', '@@cancel_task(@submit_task_form.value())', class: 'button inline button-cancel'
+        = text_area 'task_name', '', '', class: 'pi is-readonly is-transparent task-desc', data: {:component => 'text_area'}
+      .message-content.pi@submit_task_message
+      .buttons.pi@submit_task_btns
+        = link_to 'Принять', '@@submit_task(@submit_task_form.value())', class: 'button inline button-save'
+        = link_to 'Откатить', '@@decline_task(@submit_task_form.value())', class: 'button inline button-cancel'

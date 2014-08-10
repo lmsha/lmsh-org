@@ -11,6 +11,9 @@ do (context = this) ->
       @_scope = new pi.utils.Scope()
       super 'golimos'
 
+    initialize: ->
+      super new pi.views.GolimosAddTaskView()
+
     destroy: (items) ->
       false
 

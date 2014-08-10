@@ -11,6 +11,10 @@ do (context = this) ->
       @_scope = new pi.utils.Scope()
       super 'tasks', 'main'
 
+    initialize: ->
+      super new pi.views.TasksView()
+
+
     destroy: (data) ->
       true ## todo: add confirm and destroy
 

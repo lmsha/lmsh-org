@@ -1,0 +1,15 @@
+.content.full-width
+  .content-header
+    .dashboard
+      - for counter in @counters
+        .inline.team-cont
+          .team =counter[:team]
+          - for cat in counter[:categories]
+            .inline.category 
+              span.cat-title.item = cat[:title]
+              .forms
+                - for f in cat[:forms]
+                  .form-title.item =f[:title]
+                  .form-value.item 
+                    ="#{f[:simple]}+#{f[:dif]}"        
+        

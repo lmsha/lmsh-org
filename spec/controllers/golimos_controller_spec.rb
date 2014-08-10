@@ -7,6 +7,7 @@ describe GolimosController do
   render_views
 
   before(:each) do
+    ApplicationController.any_instance.stub(:send_event)
     TaskCounter.set 1, 1, 8, 1, 1
     TaskCounter.set 1, 1, 8, 0, 1
     @task = FactoryGirl.create :task, category_id: 1, simple: 1, form: 8

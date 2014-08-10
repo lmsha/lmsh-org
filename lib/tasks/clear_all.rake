@@ -13,4 +13,8 @@ namespace :clear_all do
     Task.destroy_all
   end
 
+  task assignments: :environment do
+    Assignment.destroy_all
+  end
+
 end

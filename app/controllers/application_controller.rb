@@ -12,5 +12,9 @@ class ApplicationController < ActionController::Base
     def not_authenticated
       redirect_to login_path, alert: "Необходимо авторизоваться"
     end
+
+    def send_event(type,data_)
+      RealtimeEventController.publish('/event', {event: type,data: data_})
+    end
 end
 

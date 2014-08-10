@@ -6,7 +6,7 @@ class GolimoDecorator < Draper::Decorator
   end
 
   def money
-    object.money.to_i
+    object.money.to_f
   end
 
   def total_tasks
